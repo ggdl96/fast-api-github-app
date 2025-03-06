@@ -16,5 +16,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-HEADERS: str = GitHubHeaders(Authorization=f"token {settings.GITHUB_TOKEN}").model_dump()

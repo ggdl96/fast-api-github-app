@@ -7,4 +7,4 @@ class GithubRepository(BaseModel):
     owner: str = Field(..., description="Owner name")
     private: bool = Field(..., description="Indicates if the repository is private")
     tracked_branches: List[str] = Field(..., description="List of tracked branches, e.g. ['main', 'develop']")
-    last_synced: str = Field(..., description="Timestamp of last synchronization") 
+    last_synced: str = Field(..., description="Timestamp of last synchronization")

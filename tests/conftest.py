@@ -1,6 +1,6 @@
 import pytest
 
-from constants.base_config import settings
+from core.constants.base_config import settings
 
 @pytest.fixture
 def setup_github_api_url(monkeypatch):

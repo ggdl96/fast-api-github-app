@@ -1,0 +1,20 @@
+from models.user_o_auth_token import UserOAuthToken
+from models.users import User
+
+USERS_O_AUTH: UserOAuthToken = [
+    {
+        "account_id": "",
+        "access_token": "",
+        "refresh_token": "",
+        "token_type": "",
+        "expires_at": "",
+    }
+]
+
+USERS: list[User] = [
+    {
+        "name": "",
+        "user_name": "",
+        "token": "",
+    }
+]

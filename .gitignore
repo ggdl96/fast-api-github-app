@@ -105,3 +105,6 @@ ENV/
 
 # Uvicorn logs (if generated)
 uvicorn.log
+
+# Store local data for testing
+store/*.py
