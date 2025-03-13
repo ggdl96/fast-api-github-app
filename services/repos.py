@@ -24,7 +24,7 @@ async def get_repo(owner: str, repo: str):
         if not user:
             raise HTTPException(status_code=400, detail=f"User '{owner}' not found")
             
-        response = await client.get(build_repo_url(owner=owner, repo=repo), headers=build_token_for_request(user["name"]))
+        response = await client.get(build_repo_url(owner=owner, repo=repo), headers=build_token_for_request(user["token"]))
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code,
                             detail="Error fetching repository information")
