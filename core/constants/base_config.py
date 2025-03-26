@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_SECRET: str 
     APP_ID: str
     GITHUB_PRIVATE_KEY: str
+    PRODUCT_URL: str
+    GITHUB_PRIVATE_KEY: str
 
     def __getattr__(self, item):
         return os.getenv(item)
