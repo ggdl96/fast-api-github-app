@@ -2,6 +2,12 @@ from fastapi import HTTPException
 import httpx
 from core.constants.base_config import settings
 
+import time
+
+import jwt
+
+from utils.repos import build_bearer_for_request
+
 async def oauth_access_token(code: str):
     """Get Access tokens after login with github credentials
 
@@ -32,3 +38,45 @@ async def oauth_access_token(code: str):
                                 detail="Error Logging In")
         
         return response
+
+async def generate_jwt():
+    return gen_jwt()
+
+def gen_jwt():
+    with open(settings.GITHUB_PRIVATE_KEY, 'rb') as pem_file:
+        signing_key = pem_file.read()
+
+        payload = {
+            # Issued at time
+            'iat': int(time.time()),
+            # JWT expiration time (10 minutes maximum)
+            'exp': int(time.time()) + 500,
+            # GitHub App's client ID
+            'iss': settings.APP_ID,
+        }
+
+        encoded_jwt = jwt.encode(payload, signing_key, algorithm='RS256')
+        
+        return encoded_jwt
+
+async def get_github_data(bearer_token: str):
+    """Retrieve github user data
+
+    Args:
+        bearer_token (str): the token that authorizes the request
+
+    Raises:
+        HTTPException: The exception coming from requesting the user data
+
+    Returns:
+        Any: response json of user request 
+    """
+    async with httpx.AsyncClient() as client:
+        url = f"{settings.GITHUB_API_URL}/user"
+        response = await client.get(url, headers=build_bearer_for_request(bearer_token))
+        
+        if response.status_code != 201:
+            # You might want to inspect response.json() for detailed error info
+            raise HTTPException(status_code=response.status_code,
+                                detail="")
+        return response.json()
