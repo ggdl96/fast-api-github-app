@@ -1,16 +1,55 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, Header
 import httpx
 from core.constants.base_config import settings
+from typing import Annotated, Any, Optional
 
 import time
 
 import jwt
 
+from crud.user import product_user_by_name
 from models.auth import OauthResponseError
 from utils.repos import build_bearer_for_request
 
 
-async def oauth_access_token(code: str) -> OauthResponseError:
+def verify_action_jwt_token(authorization: Annotated[Optional[str], Header()]) -> dict:
+    """Verifies the JWT generated from github action to restrict access
+
+    Args:
+        authorization (Annotated[Optional[str], Header): The Content of Authorization
+
+    Raises:
+        HTTPException: Raise exception if not valid JWT
+
+    Returns:
+        dict: The decoded JWT
+    """
+    try:
+        token = authorization.replace('Bearer ', '')
+        detail="Invalid authentication token"
+        decoded_token = jwt.decode(token,algorithms=["RS256"], options={"verify_signature": False})
+        user = product_user_by_name(decoded_token['actor'])
+
+        if (decoded_token['aud'] == settings.AUD_JWT and decoded_token['iss'] == settings.GTHUB_ISS_JWT and user.provider_user_id == decoded_token['actor_id']):
+            print('data ok')
+            # must search then in PRODUCT IF EXISTS
+            # IF EXISTS THEN START DOING STUFF
+        else:
+            raise HTTPException(status_code=401, detail=detail)
+
+        return decoded_token
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=401,
+            detail=detail
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Bad request"
+        )
+
+async def oauth_access_token(code: str) -> Any:
     """Get Access tokens after login with github credentials
 
     Args:
@@ -32,8 +71,9 @@ async def oauth_access_token(code: str) -> OauthResponseError:
                 "code": code
             }
         )
-                
+
         json = response.json()
+
         return OauthResponseError(
             error=json["error"],
             error_description=json["error_description"],

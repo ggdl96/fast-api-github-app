@@ -21,4 +21,7 @@ def product_user_by_name(name: str) -> ProductUserLogin | None:
     Returns:
         User | None: user object or None
     """
-    return next((u for u in USERS_PRODUCT if u["username"] == name), None)
+    user = next((u for u in USERS_PRODUCT if u["username"] == name), None)
+    
+    if (user):
+        return ProductUserLogin(username=user["username"], password=user["password"], provider_user_id=user["provider_user_id"], provider=user["provider"])

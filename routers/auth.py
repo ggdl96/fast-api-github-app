@@ -8,7 +8,7 @@ auth_router = APIRouter()
 async def github_auth(code: str):    
     try:
         response = await oauth_access_token(code)
-        
+
         if (response.error):
             raise (HTTPException(status_code=400, detail=response.model_dump()))
 

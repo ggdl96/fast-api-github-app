@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     PRODUCT_URL: str
     GITHUB_PRIVATE_KEY: str
     AUD_JWT: str
+    GTHUB_ISS_JWT: str
 
     def __getattr__(self, item):
         return os.getenv(item)
