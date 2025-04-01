@@ -1,10 +1,11 @@
 from typing import Optional, Dict, Any, List
 from pydantic import BaseModel, Field
 from datetime import datetime
-
 class UserModel(BaseModel):
     login: str = Field(..., description="The username of the GitHub user.")
     id: int = Field(..., description="The unique identifier of the user.")
+
+class Sender(UserModel):
     node_id: Optional[str] = Field(default=None, description="The node identifier of the user.")
     avatar_url: Optional[str] = Field(default=None, description="URL to the user's avatar image.")
     gravatar_id: Optional[str] = Field(default=None, description="The user's Gravatar ID.")
@@ -68,10 +69,9 @@ class WorkflowJob(BaseModel):
     runner_name: Optional[str] = Field(None, description="The name of the runner executing the job.")
     runner_group_id: Optional[int] = Field(None, description="The group ID of the runner.")
     runner_group_name: Optional[str] = Field(None, description="The group name of the runner.")
-
 class Installation(BaseModel):
     id: int = Field(..., description="ID")
-    node_id: str = Field(..., description="Node ID for the installation")
+    node_id: Optional[str] = Field(None, description="Node ID for the installation")
     client_id: Optional[str] = Field(default=None, description="Client ID associated with the installation")
     account: Optional[dict] = Field(default=None, description="Account information for the installation")
     repository_selection: Optional[str] = Field(default=None, description="Repository selection status")
@@ -132,7 +132,7 @@ class PullRequestWebhook(BaseModel):
     action: str = Field(..., description="The action that triggered the webhook event (e.g., opened, closed).")
     pull_request: Optional[PullRequestModel] = Field(default=None, description="The pull request data associated with the webhook event.")
     repository: Optional[RepoModel] = Field(default=None, description="The repository related to the pull request event.")
-    sender: Optional[UserModel] = Field(default=None, description="The user who initiated the webhook event.")
+    sender: Optional[Sender] = Field(default=None, description="The user who initiated the webhook event.")
     workflow_job: Optional[WorkflowJob] = Field(default=None, description="the Workflow Job data that is running/completed.")
     workflow_run: Optional[WorkflowRun] = Field(default=None, description="Workflow.")
     installation: Optional[Installation] = Field(default=None, description="Installation event (this is a default event, don't need to subscribe manually)")
