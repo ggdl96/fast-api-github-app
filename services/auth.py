@@ -6,9 +6,11 @@ import time
 
 import jwt
 
+from models.auth import OauthResponseError
 from utils.repos import build_bearer_for_request
 
-async def oauth_access_token(code: str):
+
+async def oauth_access_token(code: str) -> OauthResponseError:
     """Get Access tokens after login with github credentials
 
     Args:
@@ -30,14 +32,13 @@ async def oauth_access_token(code: str):
                 "code": code
             }
         )
-        
-        # TODO SEE HOW TO IMPROVE  THIS
-        if response.status_code != 200:
-            # TODO You might want to inspect response.json() for detailed error info
-            raise HTTPException(status_code=response.status_code,
-                                detail="Error Logging In")
-        
-        return response
+                
+        json = response.json()
+        return OauthResponseError(
+            error=json["error"],
+            error_description=json["error_description"],
+            error_uri=json["error_uri"]
+        )
 
 async def generate_jwt():
     return gen_jwt()
@@ -76,7 +77,7 @@ async def get_github_data(bearer_token: str):
         response = await client.get(url, headers=build_bearer_for_request(bearer_token))
         
         if response.status_code != 201:
-            # You might want to inspect response.json() for detailed error info
+            # TODO You might want to inspect response.json() for detailed error info
             raise HTTPException(status_code=response.status_code,
                                 detail="")
         return response.json()
