@@ -13,10 +13,13 @@ class Settings(BaseSettings):
     GITHUB_CLIENT_ID: str
     GITHUB_CLIENT_SECRET: str 
     APP_ID: str
-    PRODUCT_URL: str
     GITHUB_PRIVATE_KEY: str
     AUD_JWT: str
     GTHUB_ISS_JWT: str
+    GITHUB_URL: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    ADMIN_USER: str
+    ADMIN_PASSWORD: str
 
     def __getattr__(self, item):
         return os.getenv(item)

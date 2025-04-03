@@ -7,5 +7,9 @@ GITHUB_API_URL=https://api.github.com
 GITHUB_WEBHOOK_SECRET=
 
 GITHUB_PRIVATE_KEY=
-PRODUCT_URL=
 AUD_JWT=
+GTHUB_ISS_JWT="https://token.actions.githubusercontent.com"
+GITHUB_URL="https://github.com"
+ACCESS_TOKEN_EXPIRE_MINUTES=5
+ADMIN_USER=
+ADMIN_PASSWORD=
