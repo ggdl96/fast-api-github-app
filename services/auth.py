@@ -1,18 +1,18 @@
-from fastapi import HTTPException, Header
+from fastapi import Depends, HTTPException, Header
+from fastapi.security import OAuth2PasswordBearer
 import httpx
 from core.constants.base_config import settings
-from typing import Annotated, Any, Optional
-
-import time
+from typing import Annotated
 
 import jwt
 
 from crud.user import product_user_by_name
-from models.auth import OauthResponseError
+from models.auth import OauthResponse, OauthResponseError,OauthResponseSuccess
 from utils.repos import build_bearer_for_request
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def verify_action_jwt_token(authorization: Annotated[Optional[str], Header()]) -> dict:
+async def verify_action_jwt_token(authorization: Annotated[str, Depends(oauth2_scheme)]) -> dict:
     """Verifies the JWT generated from github action to restrict access
 
     Args:
@@ -29,11 +29,9 @@ def verify_action_jwt_token(authorization: Annotated[Optional[str], Header()]) -
         detail="Invalid authentication token"
         decoded_token = jwt.decode(token,algorithms=["RS256"], options={"verify_signature": False})
         user = product_user_by_name(decoded_token['actor'])
-
+        print('decoded_token: ', decoded_token)
         if (decoded_token['aud'] == settings.AUD_JWT and decoded_token['iss'] == settings.GTHUB_ISS_JWT and user.provider_user_id == decoded_token['actor_id']):
             print('data ok')
-            # must search then in PRODUCT IF EXISTS
-            # IF EXISTS THEN START DOING STUFF
         else:
             raise HTTPException(status_code=401, detail=detail)
 
@@ -49,7 +47,7 @@ def verify_action_jwt_token(authorization: Annotated[Optional[str], Header()]) -
             detail="Bad request"
         )
 
-async def oauth_access_token(code: str) -> Any:
+async def oauth_access_token(code: str) -> OauthResponse:
     """Get Access tokens after login with github credentials
 
     Args:
@@ -63,7 +61,7 @@ async def oauth_access_token(code: str) -> Any:
     """
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            "https://github.com/login/oauth/access_token",
+            f"{settings.GITHUB_URL}/login/oauth/access_token",
             headers={"Accept": "application/json"},
             json={
                 "client_id": settings.GITHUB_CLIENT_ID,
@@ -71,34 +69,17 @@ async def oauth_access_token(code: str) -> Any:
                 "code": code
             }
         )
+        
+        print("response.json()", response.json())
 
         json = response.json()
 
-        return OauthResponseError(
-            error=json["error"],
-            error_description=json["error_description"],
-            error_uri=json["error_uri"]
-        )
-
-async def generate_jwt():
-    return gen_jwt()
-
-def gen_jwt():
-    with open(settings.GITHUB_PRIVATE_KEY, 'rb') as pem_file:
-        signing_key = pem_file.read()
-
-        payload = {
-            # Issued at time
-            'iat': int(time.time()),
-            # JWT expiration time (10 minutes maximum)
-            'exp': int(time.time()) + 500,
-            # GitHub App's client ID
-            'iss': settings.APP_ID,
-        }
-
-        encoded_jwt = jwt.encode(payload, signing_key, algorithm='RS256')
-        
-        return encoded_jwt
+        if (json["error"]):
+            return OauthResponseError(
+               **json
+            )
+    
+        return OauthResponseSuccess(**json)
 
 async def get_github_data(bearer_token: str):
     """Retrieve github user data

@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from models.product import Step, SubmitResponse, SubmitPayload
+from services.auth import verify_action_jwt_token
 
-from models.product import SubmitPayload, SubmitResponse, Step
-from core.constants.base_config import settings
-
-product_router = APIRouter()
-PRODUCT_URL = settings.PRODUCT_URL
+product_router = APIRouter(
+    prefix="/product",
+    tags=["product"],
+    dependencies=[Depends(verify_action_jwt_token)]
+)
 
 @product_router.post("/submit")
 async def submit_in_product(data: SubmitPayload) -> SubmitResponse:
@@ -14,13 +16,13 @@ async def submit_in_product(data: SubmitPayload) -> SubmitResponse:
         description="The message was successfully processed",
         steps=[]
     )
-    
+
     final_response_error = SubmitResponse(
         message="",
         description="Something went wrong",
         steps=[]
     )
-    
+
     if (data.message.lower().find('not-allowed') != -1):
         response_steps.append(Step(name='process message', status='failed'))
 
