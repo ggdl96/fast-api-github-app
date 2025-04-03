@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from routers.repos import repo_router
-from routers.auth_appsec import auth_router
+from routers.auth import auth_router
 from routers.webhook import webhook_router
 from routers.product import product_router
 from routers.token import token_router
