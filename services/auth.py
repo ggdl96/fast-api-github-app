@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Header
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 import httpx
 from core.constants.base_config import settings
@@ -16,10 +16,11 @@ async def verify_action_jwt_token(authorization: Annotated[str, Depends(oauth2_s
     """Verifies the JWT generated from github action to restrict access
 
     Args:
-        authorization (Annotated[Optional[str], Header): The Content of Authorization
+        authorization (Annotated[str, Depends): The Content of Authorization
 
     Raises:
-        HTTPException: Raise exception if not valid JWT
+        HTTPException: Invalid JWT
+        HTTPException: Bad Request
 
     Returns:
         dict: The decoded JWT
@@ -80,25 +81,3 @@ async def oauth_access_token(code: str) -> OauthResponse:
             )
     
         return OauthResponseSuccess(**json)
-
-async def get_github_data(bearer_token: str):
-    """Retrieve github user data
-
-    Args:
-        bearer_token (str): the token that authorizes the request
-
-    Raises:
-        HTTPException: The exception coming from requesting the user data
-
-    Returns:
-        Any: response json of user request 
-    """
-    async with httpx.AsyncClient() as client:
-        url = f"{settings.GITHUB_API_URL}/user"
-        response = await client.get(url, headers=build_bearer_for_request(bearer_token))
-        
-        if response.status_code != 201:
-            # TODO You might want to inspect response.json() for detailed error info
-            raise HTTPException(status_code=response.status_code,
-                                detail="")
-        return response.json()

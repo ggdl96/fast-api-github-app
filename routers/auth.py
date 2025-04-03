@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from services.auth import oauth_access_token
-from services.user import github_user_data
+from services.user import get_github_user_data
 
 auth_router = APIRouter()
 
@@ -12,7 +12,7 @@ async def github_auth(code: str):
         if (response.error):
             raise (HTTPException(status_code=400, detail=response.model_dump()))
 
-        await github_user_data(response.access_token)
+        await get_github_user_data(response.access_token)
         return response
     except HTTPException as http_exc:
         raise HTTPException(status_code=http_exc.status_code, detail= http_exc.detail) from  http_exc
