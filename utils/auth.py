@@ -42,7 +42,7 @@ def create_access_token(data: dict[str]) -> str:
             # Issued at time
             'iat': int(time.time()),
             # JWT expiration time (10 minutes maximum)
-            'exp': 300,
+            'exp': int(time.time()) + 500,
             # GitHub App's client ID
             'iss': settings.GTHUB_ISS_JWT,
         }
@@ -50,3 +50,15 @@ def create_access_token(data: dict[str]) -> str:
         encoded_jwt = jwt.encode(payload, signing_key, algorithm='RS256')
         
         return encoded_jwt
+
+def github_jwt_validation(decoded_token: dict[str], provider_user_id: str) -> bool:
+    """Validate JWT from github actions
+
+    Args:
+        decoded_token (_type_): The decoded JWT token
+        provider_user_id (str): The id of the User in the provider
+
+    Returns:
+        bool: The validation result
+    """
+    return decoded_token['aud'] == settings.AUD_JWT and decoded_token['iss'] == settings.GTHUB_ISS_JWT and provider_user_id == decoded_token['actor_id'] and time.time() < decoded_token['exp']

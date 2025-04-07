@@ -8,6 +8,7 @@ import jwt
 
 from crud.user import product_user_by_name
 from models.auth import OauthResponse, OauthResponseError,OauthResponseSuccess
+from utils.auth import github_jwt_validation
 from utils.repos import build_bearer_for_request
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -31,7 +32,7 @@ async def verify_action_jwt_token(authorization: Annotated[str, Depends(oauth2_s
         decoded_token = jwt.decode(token,algorithms=["RS256"], options={"verify_signature": False})
         user = product_user_by_name(decoded_token['actor'])
         print('decoded_token: ', decoded_token)
-        if (decoded_token['aud'] == settings.AUD_JWT and decoded_token['iss'] == settings.GTHUB_ISS_JWT and user.provider_user_id == decoded_token['actor_id']):
+        if (github_jwt_validation(decoded_token=decoded_token, provider_user_id=user.provider_user_id)):
             print('data ok')
         else:
             raise HTTPException(status_code=401, detail=detail)
