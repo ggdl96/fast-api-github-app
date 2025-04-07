@@ -5,11 +5,10 @@ from services.auth import verify_action_jwt_token
 product_router = APIRouter(
     prefix="/product",
     tags=["product"],
-    dependencies=[Depends(verify_action_jwt_token)]
 )
 
 @product_router.post("/submit")
-async def submit_in_product(data: SubmitPayload) -> SubmitResponse:
+async def submit_in_product(data: SubmitPayload, decoded_token=Depends(verify_action_jwt_token)) -> SubmitResponse:
     response_steps = []
     final_response = SubmitResponse(
         message="",

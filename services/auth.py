@@ -8,12 +8,12 @@ import jwt
 
 from crud.user import product_user_by_name
 from models.auth import OauthResponse, OauthResponseError,OauthResponseSuccess
+from models.product import DecodedGithubJWT
 from utils.auth import github_jwt_validation
-from utils.repos import build_bearer_for_request
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-async def verify_action_jwt_token(authorization: Annotated[str, Depends(oauth2_scheme)]) -> dict:
+async def verify_action_jwt_token(authorization: Annotated[str, Depends(oauth2_scheme)]) -> DecodedGithubJWT:
     """Verifies the JWT generated from github action to restrict access
 
     Args:
@@ -37,7 +37,7 @@ async def verify_action_jwt_token(authorization: Annotated[str, Depends(oauth2_s
         else:
             raise HTTPException(status_code=401, detail=detail)
 
-        return decoded_token
+        return DecodedGithubJWT(decoded=decoded_token)
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=401,
@@ -49,7 +49,7 @@ async def verify_action_jwt_token(authorization: Annotated[str, Depends(oauth2_s
             detail="Bad request"
         )
 
-async def oauth_access_token(code: str) -> OauthResponse:
+async def oauth_access_token(code: str) -> OauthResponseSuccess:
     """Get Access tokens after login with github credentials
 
     Args:

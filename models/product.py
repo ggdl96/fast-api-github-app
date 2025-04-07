@@ -19,3 +19,6 @@ class SubmitResponse(BaseModel):
     message: str = Field(..., description="A response message indicating the outcome", example="Submission successful")
     description: Optional[str] = Field(None, description="Optional detailed description", example="The message was processed successfully")
     steps: List[Step] = Field(..., description="List of steps detailing the submission process")
+
+class DecodedGithubJWT(BaseModel):
+    decoded: dict
