@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     ADMIN_USER: str
     ADMIN_PASSWORD: str
+    VERSION: str
 
     def __getattr__(self, item):
         return os.getenv(item)
