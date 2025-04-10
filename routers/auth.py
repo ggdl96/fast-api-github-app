@@ -13,10 +13,6 @@ async def github_auth(code: str):
     try:
         response = await oauth_access_token(code)
 
-        if (response.error):
-            logger.error("failed oauth process")
-            raise (HTTPException(status_code=400, detail=response.model_dump()))
-
         await get_github_user_data(response.access_token)
         logger.info("returning github user data retrieved")
         return response

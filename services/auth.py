@@ -76,9 +76,9 @@ async def oauth_access_token(code: str) -> OauthResponseSuccess:
 
         json = response.json()
 
-        if (json["error"]):
-            return OauthResponseError(
+        if (json.get("error")):
+            raise HTTPException(status_code=400, detail=OauthResponseError(
                **json
-            )
+            ).model_dump())
     
         return OauthResponseSuccess(**json)
