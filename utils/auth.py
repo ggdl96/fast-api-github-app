@@ -2,6 +2,8 @@ from core.constants.base_config import settings
 import time
 import jwt
 
+from models.github import GithubActionJWTDecoded
+
 
 def generate_jwt() -> str:
     """Generation of JWT
@@ -41,17 +43,16 @@ def create_access_token(data: dict[str]) -> str:
             "aud": settings.AUD_JWT,
             # Issued at time
             'iat': int(time.time()),
-            # JWT expiration time (10 minutes maximum)
-            'exp': int(time.time()) + 500,
+            'exp': int(time.time()) + 5000,
             # GitHub App's client ID
             'iss': settings.GTHUB_ISS_JWT,
         }
 
         encoded_jwt = jwt.encode(payload, signing_key, algorithm='RS256')
-        
+
         return encoded_jwt
 
-def github_jwt_validation(decoded_token: dict[str], provider_user_id: str) -> bool:
+def github_jwt_validation(decoded_token: GithubActionJWTDecoded) -> bool:
     """Validate JWT from github actions
 
     Args:
@@ -61,4 +62,4 @@ def github_jwt_validation(decoded_token: dict[str], provider_user_id: str) -> bo
     Returns:
         bool: The validation result
     """
-    return decoded_token['aud'] == settings.AUD_JWT and decoded_token['iss'] == settings.GTHUB_ISS_JWT and provider_user_id == decoded_token['actor_id'] and time.time() < decoded_token['exp']
+    return decoded_token.aud == settings.AUD_JWT and decoded_token.iss == settings.GTHUB_ISS_JWT and time.time() < decoded_token.exp

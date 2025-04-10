@@ -2,6 +2,8 @@ from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
+from models.github import GithubActionJWTDecoded
+
 class SubmitPayload(BaseModel):
     owner: str = Field(..., description="The owner of the repository", example="octocat")
     message: str = Field(..., description="The message to process", example="Hi there!")
@@ -21,4 +23,5 @@ class SubmitResponse(BaseModel):
     steps: List[Step] = Field(..., description="List of steps detailing the submission process")
 
 class DecodedGithubJWT(BaseModel):
-    decoded: dict
+    decoded: GithubActionJWTDecoded
+

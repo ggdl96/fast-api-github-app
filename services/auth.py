@@ -7,7 +7,8 @@ from typing import Annotated
 import jwt
 
 from crud.user import product_user_by_name
-from models.auth import OauthResponse, OauthResponseError,OauthResponseSuccess
+from models.auth import OauthResponseError,OauthResponseSuccess
+from models.github import GithubActionJWTDecoded
 from models.product import DecodedGithubJWT
 from utils.auth import github_jwt_validation
 
@@ -29,15 +30,16 @@ async def verify_action_jwt_token(authorization: Annotated[str, Depends(oauth2_s
     try:
         token = authorization.replace('Bearer ', '')
         detail="Invalid authentication token"
-        decoded_token = jwt.decode(token,algorithms=["RS256"], options={"verify_signature": False})
-        user = product_user_by_name(decoded_token['actor'])
-        print('decoded_token: ', decoded_token)
-        if (github_jwt_validation(decoded_token=decoded_token, provider_user_id=user.provider_user_id)):
+        decoded_token = jwt.decode(token, algorithms=["RS256"], options={"verify_signature": False})
+        parsed_token = GithubActionJWTDecoded(**decoded_token)
+        user = product_user_by_name(parsed_token.actor)
+
+        if (github_jwt_validation(decoded_token=parsed_token) and parsed_token.actor_id == user.provider_user_id):
             print('data ok')
         else:
             raise HTTPException(status_code=401, detail=detail)
 
-        return DecodedGithubJWT(decoded=decoded_token)
+        return DecodedGithubJWT(decoded=parsed_token)
     except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=401,
@@ -71,8 +73,6 @@ async def oauth_access_token(code: str) -> OauthResponseSuccess:
                 "code": code
             }
         )
-        
-        print("response.json()", response.json())
 
         json = response.json()
 

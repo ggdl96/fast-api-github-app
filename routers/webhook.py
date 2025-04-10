@@ -1,17 +1,21 @@
+import logging
 from fastapi import APIRouter
-from models.webhooks import PullRequestWebhook
-from services.auth import gen_jwt
+from models.webhooks import RequestPayloadWebhook
 
 webhook_router = APIRouter()
+logger = logging.getLogger("webhook_logger")
 
 @webhook_router.post("/github/webhook")
-async def github_webhook(payload: PullRequestWebhook):
-    # print('payload: ', payload)
+async def github_webhook(payload: RequestPayloadWebhook):
     printed = False
-
+    logger.info("github webhook for sending events")
     if (payload.action == 'created' and payload.installation): 
-        # print('payload.installation: ', payload.installation)
-        #gen_jwt()
+        print('installed')
+        ## STORE IN OWN DB
+
+
+    if (payload.installation): 
+        print('payload: ', payload)
         printed = True
 
     if (payload.workflow_job):
