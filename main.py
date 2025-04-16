@@ -42,6 +42,9 @@ async def root():
         "docs_url": "/docs"
     }
 
+if not settings.GITHUB_WEBHOOK_SECRET:
+    logger.error("Webhook secret is not configured")
+
 app.include_router(repo_router)
 app.include_router(auth_router)
 app.include_router(webhook_router)

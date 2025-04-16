@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     ADMIN_USER: str
     ADMIN_PASSWORD: str
     VERSION: str
+    GITHUB_WEBHOOK_SECRET: str
 
     def __getattr__(self, item):
         return os.getenv(item)
