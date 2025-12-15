@@ -1,0 +1,36 @@
+name: Bandit SAST Scan
+
+on:
+  pull_request: # Runs on pull requests
+  push:
+    branches:
+      - main # Adjust this branch to your default branch as needed
+      - feature/test-push-2
+
+jobs:
+  bandit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+
+      - name: Install Bandit
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit
+
+      - name: Run Bandit SAST Scan
+        run: bandit -r . --exit-zero -ll -f json -o bandit_file.json -x "tests/*,test/*,*/tests/*,*/test/*,venv/*,*/venv/*,scripts/*,*/scripts/*,temp/*,*/temp/*"
+
+      - name: Run TS GitHub Action
+        uses: AppSecureAI/automation-action@v1
+        with:
+          file: bandit_file.json
