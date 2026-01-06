@@ -31,6 +31,6 @@ jobs:
         run: bandit -r . --exit-zero -ll -f json -o bandit_file.json -x "tests/*,test/*,*/tests/*,*/test/*,venv/*,*/venv/*,scripts/*,*/scripts/*,temp/*,*/temp/*"
 
       - name: Run TS GitHub Action
-        uses: AppSecureAI/submit-run-action@v1.0.7
+        uses: AppSecureAI/automation-action@v1
         with:
           file: bandit_file.json
