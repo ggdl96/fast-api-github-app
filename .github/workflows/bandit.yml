@@ -34,3 +34,4 @@ jobs:
         uses: AppSecureAI/automation-action@v1
         with:
           file: bandit_file.json
+          api-url: https://gh.cloud.appsecai.io
