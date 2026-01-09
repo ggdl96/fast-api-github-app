@@ -30,8 +30,23 @@ jobs:
       - name: Run Bandit SAST Scan
         run: bandit -r . --exit-zero -ll -f json -o bandit_file.json -x "tests/*,test/*,*/tests/*,*/test/*,venv/*,*/venv/*,scripts/*,*/scripts/*,temp/*,*/temp/*"
 
-      - name: Run TS GitHub Action
-        uses: AppSecureAI/automation-action@v1
+  triageAndRemediation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout submit-run-action
+        uses: actions/checkout@v4
+        with:
+          repository: AppSecureAI/submit-run-action
+          token: ${{ secrets.ACTION_PAT }}
+          path: .github/actions/submit-run-action
+          ref: main
+
+      - name: Run AppSecAI
+        uses: ./.github/actions/submit-run-action
         with:
           file: bandit_file.json
-          api-url: https://gh.cloud.appsecai.io
